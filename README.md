@@ -1,2 +1,2 @@
-# Consentium_Cloud_Apitester_GUI
+# Consentium_Cloud_APItester_GUI
 TKinter GUI for CONSENTIUM CLOUD
