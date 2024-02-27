@@ -1,74 +1,68 @@
-import tkinter
+import tkinter as tk
 from consentiumthings import consentiumthings
-import time
-from tkinter import ttk
-import sv_ttk
 
-def handle_input():
-    api_key = api_key_field.get()
-    board_key = board_key_field.get()
-    sensor_values = [sensor1_field.get(), sensor2_field.get(), sensor3_field.get(),
-                     sensor4_field.get(), sensor5_field.get(), sensor6_field.get(), sensor7_field.get()]
+def send_data():
+    board_key = board_key_entry.get()
+    send_key = send_key_entry.get()
+    receive_key = receive_key_entry.get()
 
-    print(f"Input values: API Key - {api_key}, Board Key - {board_key}")
+    sensor_data = {}
+    for i in range(1, 5):
+        sensor_name = sensor_name_entries[i-1].get()
+        sensor_value = sensor_value_entries[i-1].get()
+        sensor_data[sensor_name] = sensor_value
 
-    # Create an instance of ConsentiumThings with the API key and board key
-    ct = consentiumthings(api_key, board_key)
+    ct = consentiumthings(board_key)
 
-    # Your remaining code for handling sensor values and sending data
-    info_buff = ["a", "b", "c", "d", "e", "f", "g"]
-    r = ct.begin_send("send_key")
-    ct.send_data(sensor_values, info_buff)
-    received_data = ct.receive_data()
-    print(received_data)
+    # Send data
+    ct.begin_send(send_key)
+    ct.send_data(list(sensor_data.values()), list(sensor_data.keys()))
 
-    # For demonstration purposes, sleep for 5 seconds (adjust as needed)
-    time.sleep(5)
+    # Receive data
+    ct.begin_receive(receive_key, recent=False)
+    result_label.config(text=ct.receive_data())
 
-# Create the main tkinter window
-root = tkinter.Tk()
-root.title("CONSENTIUM CLOUD DASHBOARD")
+# Create the main window
+root = tk.Tk()
+root.title("ConsentiumThings GUI")
 
-# Entry for API key
-api_key_label = ttk.Label(root, text="Enter the API Key:")
-api_key_label.pack()
-api_key_field = ttk.Entry(root)
-api_key_field.pack()
+# Create and place labels and entries
+tk.Label(root, text="Board Key:").grid(row=0, column=0, padx=5, pady=5)
+board_key_entry = tk.Entry(root)
+board_key_entry.grid(row=0, column=1, padx=5, pady=5)
 
-# Entry for Board key
-board_key_label = ttk.Label(root, text="Enter the Board Key:")
-board_key_label.pack()
-board_key_field = ttk.Entry(root)
-board_key_field.pack()
+tk.Label(root, text="Send Key:").grid(row=1, column=0, padx=5, pady=5)
+send_key_entry = tk.Entry(root)
+send_key_entry.grid(row=1, column=1, padx=5, pady=5)
 
-# Entries for sensor values
-sensor_labels = ["Sensor value 1", "Sensor value 2", "Sensor value 3",
-                  "Sensor value 4", "Sensor value 5", "Sensor value 6", "Sensor value 7"]
+tk.Label(root, text="Receive Key:").grid(row=2, column=0, padx=5, pady=5)
+receive_key_entry = tk.Entry(root)
+receive_key_entry.grid(row=2, column=1, padx=5, pady=5)
 
-for label_text in sensor_labels:
-    sensor_label = ttk.Label(root, text=f"Enter the {label_text}:")
-    sensor_label.pack()
-    sensor_entry = ttk.Entry(root)
-    sensor_entry.pack()
+sensor_name_entries = []
+sensor_value_entries = []
 
-# Button to submit data
-submit_button = ttk.Button(root, text="Submit", command=handle_input)
-submit_button.pack()
+# Create fixed input boxes for sensor names and data
+sensor_names = ["Sensor 1", "Sensor 2", "Sensor 3", "Sensor 4"]
+for i, sensor_name in enumerate(sensor_names):
+    tk.Label(root, text=f"{sensor_name} Name:").grid(row=i+3, column=0, padx=5, pady=5)
+    sensor_name_entry = tk.Entry(root)
+    sensor_name_entry.grid(row=i+3, column=1, padx=5, pady=5)
+    sensor_name_entry.insert(0, sensor_name)
+    sensor_name_entries.append(sensor_name_entry)
 
-def toggle_theme():
-    # Toggle between dark and light themes
-    if sv_ttk.get_theme() == "dark":
-        print("Setting theme to light")
-        sv_ttk.use_light_theme()
-    elif sv_ttk.get_theme() == "light":
-        print("Setting theme to dark")
-        sv_ttk.use_dark_theme()
-    else:
-        print("Not Sun Valley theme")
+    tk.Label(root, text=f"{sensor_name} Value:").grid(row=i+3, column=2, padx=5, pady=5)
+    sensor_value_entry = tk.Entry(root)
+    sensor_value_entry.grid(row=i+3, column=3, padx=5, pady=5)
+    sensor_value_entries.append(sensor_value_entry)
 
-# Button to toggle theme
-theme_button = ttk.Button(root, text="Toggle theme", command=toggle_theme)
-theme_button.pack()
+# Create and place the send button
+send_button = tk.Button(root, text="Send Data", command=send_data)
+send_button.grid(row=8, column=0, columnspan=4, pady=10)
 
-# Run the tkinter main loop
+# Create and place the result label
+result_label = tk.Label(root, text="")
+result_label.grid(row=9, column=0, columnspan=4, pady=10)
+
+# Start the GUI
 root.mainloop()
