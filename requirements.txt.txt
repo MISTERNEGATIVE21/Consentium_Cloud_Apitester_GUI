@@ -1,5 +1,0 @@
-sv_ttk
-tk
-ConsentiumThingsPy
-time
-kivy
